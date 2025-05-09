@@ -23,7 +23,9 @@ function Home() {
         try {
             axios.post('http://localhost:4000/login', { details })
                 .then((res) => {
-                    navigate('/admin')
+                    const { token } = res.data
+                    localStorage.setItem('token', token)
+                    navigate('/admin/dashboard')
                 })
                 .catch((err) => {
                     console.log(err)

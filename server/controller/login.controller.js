@@ -1,4 +1,5 @@
 const users = require('../model/users.model')
+const jwt = require('jsonwebtoken')
 
 const login = async (req, res) => {
     // console.log(req)
@@ -8,8 +9,17 @@ const login = async (req, res) => {
         res.status(400).json("Invalid Username")
 
     if (password && user.password === password) {
-        console.log(user.id, " logged in")
-        res.status(200).json("Login Successful")
+
+        jwt.sign({ user }, "secret", (err, token) => {
+            if (err) {
+                console.log(err)
+                res.status(500).json("Error in token generation")
+            } else {
+                res.status(200).json({ status: "Login Successful", token })
+                console.log(token)
+                console.log(user.id, " logged in")
+            }
+        })
     } else
         res.status(400).json("Invalid Password")
 }
