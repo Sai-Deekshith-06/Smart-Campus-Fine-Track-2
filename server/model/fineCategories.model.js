@@ -12,4 +12,4 @@ const model = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('fines categories', model)
+module.exports = mongoose.model('Fines categories', model)

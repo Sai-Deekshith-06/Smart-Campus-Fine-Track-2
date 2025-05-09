@@ -8,10 +8,11 @@ const std = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     email: {
-        type: email,
+        type: String,
         default: null
     },
     class: {
@@ -26,4 +27,4 @@ const std = new mongoose.Schema({
     fines: [{ type: String }]
 })
 
-exports.student = mongoose.model('student', std)
+module.exports = mongoose.model('Student', std)

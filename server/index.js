@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
+const routes = express.Router();
 
 const app = express()
 const PORT = 4000
@@ -16,7 +17,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/mfinesdb')
 const loginRoute = require('./routes/login.route')
 const adminRoute = require('./routes/admin.route')
 const studentRoute = require('./routes/student.route')
+const get_ = require('./routes/get.route')
 
+app.use('/', get_)
 app.use('/login', loginRoute)
 app.use('/admin', adminRoute)
 app.use('/student', studentRoute)

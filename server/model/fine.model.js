@@ -42,4 +42,4 @@ const model = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('fines', model)
+module.exports = mongoose.model('Fines', model)

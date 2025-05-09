@@ -2,18 +2,14 @@ import React, { useEffect } from 'react';
 import {
     FaPlus
 } from "react-icons/fa";
+import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
 
 function NewFineEntry() {
-    useEffect(() => {
-        console.log("New Fine Entry Page Loaded");
-    })
-    const fineCategories = [
-        { type: 'Library Fine', amount: 50 },
-        { type: 'Hostel Fine', amount: 100 },
-        { type: 'Transport Fine', amount: 150 },
-        { type: 'Miscellaneous Fine', amount: 200 },
-    ];
-    const dueDate = new Date().toISOString().split('T')[0]; // Set default due date to today
+    const [studentsData, setStudentsData] = React.useState([]);
+    const [fineCategories, setFineCategories] = React.useState([]);
+    // const navigate = useNavigate();
+    const dueDate = new Date().toISOString().split('T')[0]; // Default due date to today
     const [details, setDetails] = React.useState({
         student_id: '',
         student_email: '',
@@ -23,12 +19,76 @@ function NewFineEntry() {
         reason: ''
     })
 
+    useEffect(() => {
+        console.log("New Fine Entry Page Loaded");
+        const students = () => {
+            try {
+                axios.get('http://localhost:4000/admin/getStudentsDetails')
+                    .then((res) => {
+                        console.log(res.data);
+                        setStudentsData(res.data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        const fineCategory = () => {
+            try {
+                axios.get('http://localhost:4000/getFineCategories')
+                    .then((res) => {
+                        console.log(res.data);
+                        setFineCategories(res.data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        students();
+        fineCategory();
+    }, [])
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setDetails((prevDetails) => ({
             ...prevDetails,
             [name]: value
         }));
+    }
+
+    const search = (e) => {
+        const { name, value } = e.target;
+        if (name === "student_id") {
+
+            const matchedStudent = studentsData.find((std) => std.id === value);
+            const email = matchedStudent?.email || '';
+
+            console.log("Student ID: ", value);
+            console.log("Email: ", email);
+
+            setDetails({
+                ...details,
+                student_id: value,
+                student_email: email
+            });
+        } else if (name === "fine_category") {
+            const amt = fineCategories.find(category => category.type === value)?.amount || 0
+
+            console.log("Fine Category: ", value);
+            console.log("Fine Amount: ", amt);
+
+            setDetails({
+                ...details,
+                amount: amt,
+                fine_category: value
+            })
+        }
     }
 
     return (
@@ -49,7 +109,7 @@ function NewFineEntry() {
                                     id="student_id"
                                     name="student_id"
                                     value={details.student_id}
-                                    onChange={(e) => handleChange(e)}
+                                    onChange={(e) => { handleChange(e); search(e) }}
                                     type="text"
                                     pattern="[0-9]{2}B81A[0-9]{2}[A-Z0-9]{2}"
                                     title="Enter valid Student ID in caps (e.g., 23B81A05H1)"
@@ -76,7 +136,7 @@ function NewFineEntry() {
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     id="fine_category"
                                     name="fine_category"
-                                    onChange={(e) => handleChange(e)}
+                                    onChange={(e) => { handleChange(e); search(e); }}
                                     required
                                 >
                                     <option value="">Select Category...</option>
@@ -94,9 +154,8 @@ function NewFineEntry() {
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     id="amount"
                                     name="amount"
-                                    value={fineCategories.find(category => category.type === details.fine_category)?.amount || 0}
+                                    value={details.amount}
                                     type="number"
-                                    onChange={(e) => handleChange(e)}
                                     step="0.01"
                                     min="0"
                                     required
