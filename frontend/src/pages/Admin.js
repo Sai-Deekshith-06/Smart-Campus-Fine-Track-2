@@ -9,7 +9,6 @@ import {
 import AdminDashboard from './AdminDashboard';
 import NewFineEntry from './NewFineEntry';
 import ViewFines from './ViewFines';
-import PrivateRoute from '../PrivateRoute';
 
 function Admin() {
     const navigate = useNavigate();

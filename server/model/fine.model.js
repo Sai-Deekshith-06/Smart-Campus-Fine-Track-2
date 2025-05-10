@@ -12,7 +12,6 @@ const model = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ["late", "informal", "other"],
         required: true
     },
     amount: {
@@ -29,17 +28,17 @@ const model = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["paid", "pending", "pending_approval"],
         default: "pending"
     },
     issue_date: {
         type: Date,
-        required: true
+        required: true,
+        default: new Date()
     },
     due_date: {
         type: Date,
         required: true
     }
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('Fines', model)

@@ -3,13 +3,16 @@ import {
     FaPlus
 } from "react-icons/fa";
 import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function NewFineEntry() {
     const [studentsData, setStudentsData] = React.useState([]);
     const [fineCategories, setFineCategories] = React.useState([]);
-    // const navigate = useNavigate();
-    const dueDate = new Date().toISOString().split('T')[0]; // Default due date to today
+    const navigate = useNavigate();
+    const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Add 7 days
+        .toISOString()
+        .split('T')[0];
+
     const [details, setDetails] = React.useState({
         student_id: '',
         student_email: '',
@@ -20,7 +23,6 @@ function NewFineEntry() {
     })
 
     useEffect(() => {
-        console.log("New Fine Entry Page Loaded");
         const students = () => {
             try {
                 axios.get('http://localhost:4000/admin/getStudentsDetails')
@@ -91,6 +93,23 @@ function NewFineEntry() {
         }
     }
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log(details);
+        try {
+            axios.post('http://localhost:4000/admin/createFine', { details })
+                .then((res) => {
+                    console.log(res.data)
+                    // navigate('/admin/viewFines');
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     return (
         <div className="flex-1 flex flex-col overflow-auto">
             <header className="bg-white py-4 px-6 shadow-md sticky top-0">
@@ -100,7 +119,7 @@ function NewFineEntry() {
             </header>
             <div className="overflow-auto bg-gray-50 py-4 px-6">
                 <div className="bg-white shadow rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-                    <form id="newFineForm" method="post">
+                    <form id="newFineForm" onSubmit={(e) => handleSubmit(e)}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="student_id">Student ID</label>
@@ -112,7 +131,7 @@ function NewFineEntry() {
                                     onChange={(e) => { handleChange(e); search(e) }}
                                     type="text"
                                     pattern="[0-9]{2}B81A[0-9]{2}[A-Z0-9]{2}"
-                                    title="Enter valid Student ID in caps (e.g., 23B81A05H1)"
+                                    title="Enter valid Student ID in caps (e.g., 23B81A67A1)"
                                     required
                                 />
                             </div>
@@ -155,6 +174,7 @@ function NewFineEntry() {
                                     id="amount"
                                     name="amount"
                                     value={details.amount}
+                                    onChange={(e) => { handleChange(e); search(e); }}
                                     type="number"
                                     step="0.01"
                                     min="0"
@@ -185,10 +205,9 @@ function NewFineEntry() {
                                     aria-describedby="charCount"
                                     rows="3"
                                     maxLength="200"
-                                    required
                                 ></textarea>
                                 <p className="text-sm text-gray-500 text-right" id="charCount">
-                                    0 / 200 characters
+                                    {details.reason.length} / 200 characters
                                 </p>
                             </div>
                         </div>
@@ -196,12 +215,7 @@ function NewFineEntry() {
                             <button
                                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 type="submit"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    console.log(details);
-                                }}
-
-
+                            // onClick={(e) => handleSubmit(e)}
                             >
                                 Create Fine
                             </button>
