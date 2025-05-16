@@ -7,7 +7,7 @@ const studentDetails = async (req, res) => {
         const data = await student.find({})
         res.status(200).json(data)
     } catch (err) {
-        res.status(400).json("Internal Servar Error: in fetching student details")
+        res.status(500).json("Internal Servar Error: in fetching student details")
     }
 }
 
@@ -40,7 +40,7 @@ const createFine = async (req, res) => {
     } catch (err) {
         session.abortTransaction()
         console.log(err)
-        res.status(400).json("Error in creating fine")
+        res.status(500).json("Error in creating fine")
     } finally {
         session.endSession()
     }
@@ -51,7 +51,7 @@ const getFines = async (req, res) => {
         const data = await fines.find({})
         res.status(200).json(data)
     } catch (err) {
-        res.status(400).json("Internal Servar Error: in fetching fine details")
+        res.status(500).json("Internal Servar Error: in fetching fine details")
     }
 }
 
@@ -78,21 +78,70 @@ const getAnalysis = async (req, res) => {
         res.status(200).json(data)
     } catch (err) {
         console.log(err)
-        res.status(400).json("Internal Servar Error: in fetching fine details")
+        res.status(500).json("Internal Servar Error: in fetching fine details")
     }
 }
 
 const approveId = async (req, res) => {
     try {
-        const { id } = req.body
-        const fine = await fines.updateOne({ id: id }, { status: "paid" }, { new: true })
+        const { id, txnId } = req.body
+        const fine = await fines.updateMany({ studentId: id, txnId: txnId }, { status: "paid" }, { new: true })
+        console.log(id, txnId)
+        console.log(fine)
         if (!fine)
             res.status(404).json("fine not found")
         res.status(200).json("Fine status updated to paid")
     } catch (err) {
         console.log(err)
-        res.status(400)
+        res.status(500)
     }
 }
 
-module.exports = { studentDetails, createFine, getFines, getAnalysis, approveId }
+const toApprove = async (req, res) => {
+    try {
+        const data = await fines.find({ status: 'pending_approval' })
+        const std = (await student.find({})).reduce((prev, stdObj) => {
+            prev[stdObj.id] = stdObj
+            return prev
+        }, {})
+        const group = {}
+
+        data.forEach(fine => {
+            if (!group[fine.txnId]) {
+                group[fine.txnId] = {
+                    txnId: fine.txnId,
+                    studentId: fine.studentId,
+                    studentName: std[fine.studentId].name,
+                    totalAmount: 0.00,
+                    fines: []
+                };
+            }
+            group[fine.txnId].fines.push({
+                category: fine.category,
+                reason: fine.reason,
+                amount: fine.amount,
+                due_date: fine.due_date
+            })
+            group[fine.txnId].totalAmount += fine.amount
+        })
+        // console.log(group)
+
+        res.status(200).json(group)
+    } catch (err) {
+        res.status(500).json("Internal Servar Error: in fetching fine details")
+    }
+}
+
+const deleteFine = async (req, res) => {
+    try {
+        const { fid } = req.body
+        const result = await fines.deleteOne({ id: fid })
+        if (result.modifiedCount == 1)
+            return res.status(200).json("fine deleted")
+        res.status(400).json('fine not found')
+    } catch (error) {
+        res.status(500).json('Internal Server Error')
+    }
+}
+
+module.exports = { studentDetails, createFine, getFines, getAnalysis, approveId, toApprove, deleteFine }

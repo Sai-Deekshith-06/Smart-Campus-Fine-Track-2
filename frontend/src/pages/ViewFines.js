@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import { FaFileInvoiceDollar, FaSearch, FaChevronDown, FaCalendar, FaFilter, FaTimes } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 function ViewFinesUI() {
     const [filters, setFilters] = useState({
@@ -13,7 +15,8 @@ function ViewFinesUI() {
     const [fines, setFines] = useState([])
     const [filteredFines, setFilteredFines] = useState([])
     const [students, setStudents] = useState([])
-    const [approved, setApproved] = useState(false)
+    const navigate = useNavigate()
+    const [deleted, setDeleted] = useState(false)
 
     useEffect(() => {
 
@@ -57,7 +60,7 @@ function ViewFinesUI() {
             }
         }
         getStudents()
-    }, [approved])
+    }, [deleted])
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -84,19 +87,19 @@ function ViewFinesUI() {
         console.log(name, value)
     }
 
-    const handleApprove = (id) => {
-        console.log(id)
+    const handleDelete = async (fid) => {
         try {
-            axios.post('http://localhost:4000/admin/approve', { id })
-                .then((res) => {
-                    console.log(res)
-                    setApproved(!approved)
+            await axios.post('http://localhost:4000/admin/deleteFine', { fid })
+                .then(res => {
+                    toast.success('Fine deleted sucessfully')
+                    setDeleted(!deleted)
                 })
-                .catch((res) => {
-                    console.log(res)
+                .catch(err => {
+                    toast.error(err)
                 })
-        } catch (err) {
-            console.log(err)
+        } catch (error) {
+            toast.error(error)
+            console.log(error)
         }
     }
 
@@ -247,13 +250,20 @@ function ViewFinesUI() {
                                             {fine.status}
                                         </td>
                                         <td className="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                            <button
-                                                type="button"
-                                                disabled={fine.status !== 'pending_approval'}
-                                                onClick={e => { handleApprove(fine.id) }}
-                                                className="text-red-600 hover:text-red-800 text-xs font-bold py-1 px-2 rounded">
-                                                Approve
-                                            </button>
+                                            {fine.status === 'pending_approval' ?
+                                                (<button
+                                                    type="button"
+                                                    onClick={() => { navigate('/admin/paymentApprovals') }}
+                                                    className="text-red-600 hover:text-red-800 text-xs font-bold py-1 px-2 rounded">
+                                                    Review
+                                                </button>) : fine.status === 'pending' ?
+                                                    (<button
+                                                        type="button"
+                                                        onClick={() => { handleDelete(fine.id) }}
+                                                        className="text-red-600 hover:text-red-800 text-xs font-bold py-1 px-2 rounded">
+                                                        Delete
+                                                    </button>) : (<p className="text-xs">No Actions</p>)
+                                            }
                                         </td>
                                     </tr>
                                 ))
