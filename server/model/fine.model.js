@@ -28,7 +28,8 @@ const model = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: "pending"
+        default: "pending",
+        enum: ["paid", "pending", "pending_approval"],
     },
     issue_date: {
         type: Date,

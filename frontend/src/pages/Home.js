@@ -5,17 +5,22 @@ import axios from 'axios'
 
 function Home() {
 
-    const [activeTab, setActiveTab] = useState('admin')
+    const [activeTab, setActiveTab] = useState('student')
 
     const [details, setDetails] = useState({
         uname: '',
         password: ''
     })
 
+    const [std, setStd] = useState("")
+
     const navigate = useNavigate()
     const handleChange = (e) => {
         const { name, value } = e.target
-        setDetails({ ...details, [name]: value })
+        if (name === "student_id")
+            setStd(value)
+        else
+            setDetails({ ...details, [name]: value })
     }
 
     const handleLogin = async (e) => {
@@ -39,6 +44,7 @@ function Home() {
         e.preventDefault()
         const student_id = e.target.student_id.value
         console.log(student_id)
+        navigate(`/student/${student_id}`)
     }
 
     return (
@@ -93,7 +99,7 @@ function Home() {
                                             type="text"
                                             name="student_id"
                                             id="student_id"
-                                            value={""}
+                                            value={std}
                                             placeholder="Enter your Roll No"
                                             className="form-input"
                                             onChange={(e) => { handleChange(e) }}

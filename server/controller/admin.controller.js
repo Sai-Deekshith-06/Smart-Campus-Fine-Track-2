@@ -2,12 +2,12 @@ const student = require('../model/student.model')
 const fines = require('../model/fine.model')
 
 const studentDetails = async (req, res) => {
-    const data = await student.find({})
     // console.log(data)
-    if (data) {
+    try {
+        const data = await student.find({})
         res.status(200).json(data)
-    } else {
-        res.status(400).json("Error in fetching student details")
+    } catch (err) {
+        res.status(400).json("Internal Servar Error: in fetching student details")
     }
 }
 
@@ -47,10 +47,52 @@ const createFine = async (req, res) => {
 }
 
 const getFines = async (req, res) => {
-    console.log(req.body)
-    res.status(200).json("Fine created successfully")
+    try {
+        const data = await fines.find({})
+        res.status(200).json(data)
+    } catch (err) {
+        res.status(400).json("Internal Servar Error: in fetching fine details")
+    }
 }
 
+const getAnalysis = async (req, res) => {
+    try {
+        const { load } = req.body
+        const data = load
+        const allFines = await fines.find()
+        data.total_fines = allFines.length
+        allFines.forEach((fine) => {
+            const bno = fine.studentId.substring(0, 2)
+            const batch = data.batches.find(obj => bno === String(obj.batch))
+            if (batch) {
+                batch.total_fines += 1
+                batch.total_amount += fine.amount
+            }
+            if (fine.status === "pending") {
+                data.total_pending += 1
+            } else {
+                data.total_collected += fine.amount
+            }
+        })
+        // console.log(data)
+        res.status(200).json(data)
+    } catch (err) {
+        console.log(err)
+        res.status(400).json("Internal Servar Error: in fetching fine details")
+    }
+}
 
+const approveId = async (req, res) => {
+    try {
+        const { id } = req.body
+        const fine = await fines.updateOne({ id: id }, { status: "paid" }, { new: true })
+        if (!fine)
+            res.status(404).json("fine not found")
+        res.status(200).json("Fine status updated to paid")
+    } catch (err) {
+        console.log(err)
+        res.status(400)
+    }
+}
 
-module.exports = { studentDetails, createFine, getFines }
+module.exports = { studentDetails, createFine, getFines, getAnalysis, approveId }

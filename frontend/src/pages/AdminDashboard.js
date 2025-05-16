@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import {
     FaHome,
     FaUsers,
@@ -6,14 +6,70 @@ import {
     FaHourglassHalf,
     FaListOl
 } from "react-icons/fa";
+import axios from "axios";
 
 function AdminDashboard() {
-    const data = {
-        total_collected: 12345.67,
-        total_pending: 89,
-        fines_by_status: [],
-        fines_by_batch: [],
-    };
+    const [data, setData] = useState({
+        total_collected: 0,
+        total_pending: 0,
+        toatal_fines: 0,
+        total_batches: 0,
+        batches: []
+    })
+
+
+    const [load, setLoad] = useState({
+        total_collected: 0,
+        total_pending: 0,
+        toatal_fines: 0,
+        total_batches: 0,
+        batches: []
+    })
+
+    useEffect(() => {
+        async function func() {
+            let d = new Date().toISOString()
+            let curr_batch = Number(d.toString().substring(2, 4))
+            let batches = [];
+            for (let i = 5; i >= 0; i--) {
+                batches.push({
+                    batch: curr_batch - i,
+                    total_fines: 0,
+                    total_amount: 0
+                });
+            }
+            setData(prev => ({
+                ...prev,
+                batches: batches
+            }))
+            setLoad(prev => ({
+                ...prev,
+                batches: batches
+            }))
+        }
+        func()
+    }, [])
+
+    useEffect(() => {
+        if (!load.batches || load.batches.length === 0) return;
+        const fetchData = async () => {
+            try {
+                await axios.post("http://localhost:4000/admin/getAnalysis", { load })
+                    .then(res => {
+                        // console.log(res.data)
+                        setData(res.data)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        fetchData()
+    }, [load])
+
+
     return (
         <div className="w-full">
             <header className="bg-white py-4 px-6 shadow-md sticky top-0">
@@ -30,7 +86,7 @@ function AdminDashboard() {
                             <FaRupeeSign className="fa-2x text-green-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Total Collected</p>
+                            <p className="text-sm text-gray-500 font-medium">Total Amount Collected</p>
                             <p className="text-2xl font-bold text-gray-800">₹ {data.total_collected}</p>
                         </div>
                     </div>
@@ -51,7 +107,7 @@ function AdminDashboard() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-500 font-medium">Total Fines Issued</p>
-                            <p className="text-2xl font-bold text-gray-800">{data.fines_by_status}</p>
+                            <p className="text-2xl font-bold text-gray-800">{data.total_fines}</p>
                         </div>
                     </div>
 
@@ -61,7 +117,7 @@ function AdminDashboard() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-500 font-medium">Batches with Fines</p>
-                            <p className="text-2xl font-bold text-gray-800">{data.fines_by_batch.length}</p>
+                            <p className="text-2xl font-bold text-gray-800">{data.total_batches}</p>
                         </div>
                     </div>
                 </div>
@@ -79,11 +135,13 @@ function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                <tr className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2025</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹ 0.00</td>
-                                </tr>
+                                {data.batches.map((batch, i) => (
+                                    <tr key={i} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">20{batch.batch}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{batch.total_fines}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹ {Number(batch.total_amount).toFixed(2)}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>

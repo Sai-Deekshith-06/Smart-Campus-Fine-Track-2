@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import PrivateRoute from './PrivateRoute';
 import Admin from './pages/Admin';
 import Student from './pages/Student';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -16,9 +17,10 @@ function App() {
             <Route path="/admin/*" element={<Admin />} />
             {/* <Route path="/admin/newFineEntry" element={<NewFineEntry />} /> */}
           </Route>
-          <Route path="/student" element={<Student />} />
+          <Route path="/student/:studentId" element={<Student />} />
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
     </div>
   );
 }

@@ -100,7 +100,7 @@ function NewFineEntry() {
             axios.post('http://localhost:4000/admin/createFine', { details })
                 .then((res) => {
                     console.log(res.data)
-                    // navigate('/admin/viewFines');
+                    navigate('/admin/viewFines');
                 })
                 .catch((err) => {
                     console.log(err)

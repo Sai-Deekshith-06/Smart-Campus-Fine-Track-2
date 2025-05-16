@@ -4,11 +4,13 @@ import {
     FaHome,
     FaPlus,
     FaFileInvoiceDollar,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaCheckCircle
 } from "react-icons/fa";
 import AdminDashboard from './AdminDashboard';
 import NewFineEntry from './NewFineEntry';
 import ViewFines from './ViewFines';
+import PaymentApprovals from './Approvals';
 
 function Admin() {
     const navigate = useNavigate();
@@ -42,6 +44,9 @@ function Admin() {
                         <Link to="/admin/viewFines" className="block py-2 px-2 hover:bg-blue-800 rounded">
                             <FaFileInvoiceDollar className="mr-2 w-6 inline-block text-center" /> View Fines
                         </Link>
+                        <Link to="/admin/paymentApprovals" className="block py-2 px-2 hover:bg-blue-800 rounded">
+                            <FaCheckCircle className="mr-2 w-6 inline-block text-center" /> Payment Approvals
+                        </Link>
                         <button onClick={handleLogout} className="block w-full text-left mt-4 py-2 px-2 hover:bg-blue-800 rounded">
                             <FaSignOutAlt className="mr-2 w-6 inline-block text-center" /> Logout
                         </button>
@@ -54,6 +59,7 @@ function Admin() {
                         <Route path="dashboard" element={<AdminDashboard />} />
                         <Route path="newFineEntry" element={<NewFineEntry />} />
                         <Route path="viewFines" element={<ViewFines />} />
+                        <Route path="paymentApprovals" element={<PaymentApprovals />} />
                     </Routes>
                 </div>
             </main >
