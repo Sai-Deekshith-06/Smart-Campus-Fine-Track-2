@@ -16,14 +16,15 @@ const createFine = async (req, res) => {
     try {
         await session.startTransaction()
         const record = req.body.details
-
+        const date = new Date().toISOString().split('.')[0]
+        const allFines = await fines.find()
+        const fid = `${date}_${allFines.length + 1}`
         const std = await student.findOne({ id: record.student_id })
         if (!std)
             return res.status(400).json("Student not found")
 
-        const allFines = await fines.find()
         await fines.create({
-            id: allFines.length + 1,
+            id: fid,
             studentId: record.student_id,
             category: record.fine_category,
             amount: record.amount,
@@ -31,7 +32,7 @@ const createFine = async (req, res) => {
             due_date: record.due_date
         })
 
-        std.fines.push(allFines.length + 1)
+        std.fines.push(fid)
 
         await student.updateOne({ id: record.student_id }, { fines: std.fines })
 
@@ -49,7 +50,7 @@ const createFine = async (req, res) => {
 const getFines = async (req, res) => {
     try {
         const data = await fines.find({})
-        res.status(200).json(data)
+        res.status(200).json(data.reverse())
     } catch (err) {
         res.status(500).json("Internal Servar Error: in fetching fine details")
     }
@@ -86,8 +87,8 @@ const approveId = async (req, res) => {
     try {
         const { id, txnId } = req.body
         const fine = await fines.updateMany({ studentId: id, txnId: txnId }, { status: "paid" }, { new: true })
-        console.log(id, txnId)
-        console.log(fine)
+        // console.log(id, txnId)
+        // console.log(fine)
         if (!fine)
             res.status(404).json("fine not found")
         res.status(200).json("Fine status updated to paid")
@@ -134,13 +135,21 @@ const toApprove = async (req, res) => {
 
 const deleteFine = async (req, res) => {
     try {
-        const { fid } = req.body
+        const { fid, stdId } = req.body
+
+        const std = await student.findOne({ id: stdId })
+        if (!std)
+            return res.status(400).json("Student not found")
+
+        const updatedStdFines = std.fines.filter(f => f !== fid)
         const result = await fines.deleteOne({ id: fid })
-        if (result.modifiedCount == 1)
+        await student.updateOne({ id: stdId }, { fines: updatedStdFines })
+
+        if (result.deletedCount == 1)
             return res.status(200).json("fine deleted")
         res.status(400).json('fine not found')
     } catch (error) {
-        res.status(500).json('Internal Server Error')
+        res.status(500).json('Internal Server Error...')
     }
 }
 

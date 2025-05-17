@@ -87,15 +87,16 @@ function ViewFinesUI() {
         console.log(name, value)
     }
 
-    const handleDelete = async (fid) => {
+    const handleDelete = async (fid, stdId) => {
         try {
-            await axios.post('http://localhost:4000/admin/deleteFine', { fid })
+            await axios.post('http://localhost:4000/admin/deleteFine', { fid, stdId })
                 .then(res => {
                     toast.success('Fine deleted sucessfully')
                     setDeleted(!deleted)
                 })
                 .catch(err => {
                     toast.error(err)
+                    console.log(err)
                 })
         } catch (error) {
             toast.error(error)
@@ -259,7 +260,7 @@ function ViewFinesUI() {
                                                 </button>) : fine.status === 'pending' ?
                                                     (<button
                                                         type="button"
-                                                        onClick={() => { handleDelete(fine.id) }}
+                                                        onClick={() => { handleDelete(fine.id, fine.studentId) }}
                                                         className="text-red-600 hover:text-red-800 text-xs font-bold py-1 px-2 rounded">
                                                         Delete
                                                     </button>) : (<p className="text-xs">No Actions</p>)

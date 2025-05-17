@@ -4,6 +4,7 @@ import {
 } from "react-icons/fa";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function NewFineEntry() {
     const [studentsData, setStudentsData] = React.useState([]);
@@ -100,12 +101,15 @@ function NewFineEntry() {
             axios.post('http://localhost:4000/admin/createFine', { details })
                 .then((res) => {
                     console.log(res.data)
+                    toast.success(`Fine imposed on ${details.student_id}`)
                     navigate('/admin/viewFines');
                 })
                 .catch((err) => {
+                    toast.error(err)
                     console.log(err)
                 })
         } catch (err) {
+            toast.error(err)
             console.log(err);
         }
     }
