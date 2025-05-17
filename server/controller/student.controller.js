@@ -1,4 +1,5 @@
 const fines = require('../model/fine.model')
+const student = require('../model/student.model')
 
 const getFines = async (req, res) => {
     try {
@@ -6,10 +7,11 @@ const getFines = async (req, res) => {
         // console.log(req.body)
         // console.log(studentId)
         const data = await fines.find({ studentId: studentId })
+        const studentData = (await student.find({ id: studentId }))[0]
         if (!data)
-            res.status(404).json("No Fines Imposed")
+            res.status(200).json("No Fines Imposed")
         // console.log(data)
-        res.status(200).json(data)
+        res.status(200).json({ data, studentData })
     } catch (err) {
         res.status(400).json("Internal Servar Error: in fetching fine details")
     }

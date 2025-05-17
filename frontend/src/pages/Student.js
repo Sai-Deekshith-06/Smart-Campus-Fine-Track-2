@@ -8,6 +8,7 @@ const FinePaymentPage = () => {
     const [updated, setUpdated] = useState(false);
     const [fines, setFines] = useState([])
     const [txnId, SetTxnId] = useState("")
+    const [studentData, setStudentData] = useState([]);
 
     const [selectedFines, setSelectedFines] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -18,7 +19,8 @@ const FinePaymentPage = () => {
                 await axios.post('http://localhost:4000/student/getFines', { studentId })
                     .then((res) => {
                         console.log(res.data)
-                        setFines(res.data)
+                        setFines(res.data.data)
+                        setStudentData(res.data.studentData)
                     })
                     .catch((err) => {
                         console.log(err)
@@ -75,7 +77,7 @@ const FinePaymentPage = () => {
             <div className="flex flex-col h-full">
                 <div className="bg-gradient-to-r from-blue-900 to-blue-600 text-white text-center p-6 border-b-4 border-amber-400">
                     <h1 className="text-2xl font-semibold">
-                        Fines for <span className="font-bold">{'{student_name}'}</span>{' '}
+                        Fines for <span className="font-bold">{studentData.name}</span>{' '}
                         <span className="font-normal">({studentId})</span>
                     </h1>
                 </div>
