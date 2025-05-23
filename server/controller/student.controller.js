@@ -8,8 +8,8 @@ const getFines = async (req, res) => {
         // console.log(studentId)
         const data = await fines.find({ studentId: studentId })
         const studentData = (await student.find({ id: studentId }))[0]
-        if (!data)
-            res.status(200).json("No Fines Imposed")
+        if (!data || data.length === 0)
+            res.status(200).json("No Fine records")
         // console.log(data)
         res.status(200).json({ data, studentData })
     } catch (err) {

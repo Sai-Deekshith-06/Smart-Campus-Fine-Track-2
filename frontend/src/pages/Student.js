@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const FinePaymentPage = () => {
@@ -13,12 +13,17 @@ const FinePaymentPage = () => {
     const [selectedFines, setSelectedFines] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
+    const navigate = useNavigate()
     useEffect(() => {
         const getFines = async () => {
             try {
                 await axios.post('http://localhost:4000/student/getFines', { studentId })
                     .then((res) => {
-                        console.log(res.data)
+                        console.log(res)
+                        if (typeof (res.data) == 'string') {
+                            toast.error(res.data)
+                            navigate('/')
+                        }
                         setFines(res.data.data)
                         setStudentData(res.data.studentData)
                     })
@@ -29,8 +34,12 @@ const FinePaymentPage = () => {
                 console.log(err)
             }
         }
+        if (! /[0-9]{2}B81A[0-9]{2}[0-9A-Z]{2}/.test(studentId)) {
+            navigate("/")
+            toast.error("Invalid Roll Number")
+        }
         getFines()
-    }, [updated, studentId])
+    }, [updated, studentId, navigate])
 
     const toggleFineSelection = (fineId) => {
         setSelectedFines((prevSelected) =>
@@ -73,11 +82,11 @@ const FinePaymentPage = () => {
     };
 
     return (
-        <div className="w-screen h-screen bg-gray-100">
+        < div className="w-screen h-screen bg-gray-100" >
             <div className="flex flex-col h-full">
                 <div className="bg-gradient-to-r from-blue-900 to-blue-600 text-white text-center p-6 border-b-4 border-amber-400">
                     <h1 className="text-2xl font-semibold">
-                        Fines for <span className="font-bold">{studentData.name}</span>{' '}
+                        Fines for <span className="font-bold">{studentData?.name}</span>{' '}
                         <span className="font-normal">({studentId})</span>
                     </h1>
                 </div>
@@ -98,7 +107,7 @@ const FinePaymentPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {fines.map((fine) => (
+                                    {fines?.map((fine) => (
                                         <tr key={fine.id} className="border-t">
                                             <td className="text-center p-2">
                                                 <input
@@ -115,7 +124,7 @@ const FinePaymentPage = () => {
                                             <td className="p-3">{fine.due_date.toString().split('T')[0]}</td>
                                             <td className="p-3">{fine.status}</td>
                                         </tr>
-                                    ))}
+                                    )) || <tr><td className="p-3 text-center" colSpan="7">No Fines to display</td></tr>}
                                 </tbody>
                             </table>
                         </div>
@@ -152,7 +161,7 @@ const FinePaymentPage = () => {
                             <div className="mb-4">
                                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Selected Fines:</h3>
                                 <ul className="list-disc list-inside text-sm text-gray-600 max-h-24 overflow-y-auto border p-2 rounded-md">
-                                    {selectedFines.map((fineId) => {
+                                    {selectedFines?.map((fineId) => {
                                         const fine = fines.find((f) => f.id === fineId);
                                         return fine ? (
                                             <li key={fine.id}>{fine.category}: ₹ {fine.amount.toFixed(2)}</li>
@@ -222,7 +231,7 @@ const FinePaymentPage = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

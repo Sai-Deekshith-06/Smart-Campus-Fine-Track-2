@@ -10,50 +10,6 @@ import {
 import { toast } from 'react-toastify';
 
 const PaymentApprovals = () => {
-    // const approvals = [
-    //     {
-    //         txnId: 'TXN123456',
-    //         student_name: 'John Doe',
-    //         student_id_str: 'STU001',
-    //         total_amount: 250.75,
-    //         screenshot_id: 'screenshot_abc123',
-    //         fines: [
-    //             {
-    //                 fine_category: 'Library',
-    //                 reason: 'Late book return',
-    //                 amount: 100.0,
-    //                 due_date: '2025-05-10',
-    //             },
-    //             {
-    //                 fine_category: 'Discipline',
-    //                 reason: 'Improper uniform',
-    //                 amount: 150.75,
-    //                 due_date: '2025-05-12',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         txnId: 'TXN123457',
-    //         student_name: 'John Doe',
-    //         student_id_str: 'STU001',
-    //         total_amount: 250.75,
-    //         screenshot_id: 'screenshot_abc123',
-    //         fines: [
-    //             {
-    //                 fine_category: 'Library',
-    //                 reason: 'Late book return',
-    //                 amount: 100.0,
-    //                 due_date: '2025-05-10',
-    //             },
-    //             {
-    //                 fine_category: 'Discipline',
-    //                 reason: 'Improper uniform',
-    //                 amount: 150.75,
-    //                 due_date: '2025-05-12',
-    //             },
-    //         ],
-    //     }
-    // ];
 
     const [approvals, setApprovals] = useState([])
     const [approved, setApproved] = useState(false)

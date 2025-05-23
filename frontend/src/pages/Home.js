@@ -26,7 +26,7 @@ function Home() {
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
-            axios.post('http://localhost:4000/login', { details })
+            await axios.post('http://localhost:4000/login', { details })
                 .then((res) => {
                     const { token } = res.data
                     localStorage.setItem('token', token)
